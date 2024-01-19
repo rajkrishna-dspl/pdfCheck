@@ -9,7 +9,7 @@ import React from 'react';
 import Pdf from 'react-native-pdf';
 
 const PdfViewerScreen = ({route}) => {
-  const {pdfLink} = route.params;
+  const {item} = route.params;
 
   return (
     <View style={styles.container}>
@@ -22,7 +22,7 @@ const PdfViewerScreen = ({route}) => {
           <ActivityIndicator color="#000" size="large" />
         )}
         source={{
-          uri: pdfLink,
+          uri: 'file://' + item.path,
         }}
       />
     </View>

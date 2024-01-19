@@ -9,7 +9,6 @@ import {
 import React, {useState} from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import RNFetchBlob from 'rn-fetch-blob';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({navigation}) => {
   const [pdfLink, setPdfLink] = useState(
@@ -42,17 +41,22 @@ const HomeScreen = ({navigation}) => {
 
   const downloadFile = async () => {
     const {config, fs} = RNFetchBlob;
-    const fileDir = fs.dirs.DownloadDir;
+    const fileDir = fs.dirs.DocumentDir;
     const date = new Date();
+    const dirExists = await fs.exists(fileDir);
+    console.log(dirExists);
+
+    //If it doesn't exist, create it
+    //if (!dirExists) await fs.mkdir(fileDir);
 
     try {
-      const response = config({
+      config({
         fileCache: true,
         addAndroidDownloads: {
           useDownloadManager: true,
           notification: true,
           path:
-            fileDir + '/download_' + Math.random(date.getDate() / 2) + '.pdf',
+            fileDir + '/document_' + Math.random(date.getDate() / 2) + '.xyzzz',
           description: 'file download',
         },
       })
@@ -64,19 +68,8 @@ const HomeScreen = ({navigation}) => {
           console.log('The file saved to ', res.path());
           Alert.alert('File downloaded successfully');
         });
-
-      const filePath = response.path();
-
-      // Read the file content
-      const fileContent = await fs.readFile(filePath, 'base64');
-
-      // Store the file content in async storage
-      await AsyncStorage.setItem('downloadedFile', fileContent);
-
-      // Optionally, you can delete the downloaded file from the device
-      await fs.unlink(filePath);
-    } catch {
-      console.log('Some problem occured, file not downloaded');
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -98,6 +91,12 @@ const HomeScreen = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('FileView');
+        }}>
+        <Text style={{fontSize: 50}}>File Viewer</Text>
+      </TouchableOpacity>
     </View>
   );
 };
